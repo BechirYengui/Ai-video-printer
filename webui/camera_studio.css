@@ -1,0 +1,358 @@
+/* YVP — studio caméra (shadow DOM : variables du thème Streamlit). */
+.studio {
+    --accent: var(--st-primary-color, #6D4AFF);
+    --text: var(--st-text-color, #17152A);
+    --surface: var(--st-secondary-background-color, #EFEDF7);
+    --border: var(--st-border-color, rgba(128, 128, 140, 0.3));
+    --radius: var(--st-base-radius, 10px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    color: var(--text);
+    font-family: var(--st-font, inherit);
+    font-size: 0.9rem;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Caméra allumée : panneau flottant au centre de l'écran. */
+.overlay.open {
+    position: fixed;
+    inset: 0;
+    z-index: 1000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(8, 7, 14, 0.72);
+    backdrop-filter: blur(6px);
+}
+
+.overlay.open .panel {
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    padding: 1rem 1.25rem;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--st-background-color, #FFFFFF);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.overlay.open .row {
+    justify-content: center;
+}
+
+.overlay.open .row-label {
+    min-width: 0;
+}
+
+.overlay.open .stage.portrait {
+    width: auto;
+    height: min(68vh, 900px);
+}
+
+.overlay.open .stage.landscape {
+    width: min(86vw, 1100px, calc(68vh * 16 / 9));
+    max-width: none;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+}
+
+.row[hidden] {
+    display: none;
+}
+
+.row-label {
+    min-width: 5.5rem;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.seg {
+    display: inline-flex;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+}
+
+.seg .btn {
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    padding: 0.35rem 0.9rem;
+}
+
+.seg .btn.on {
+    background: var(--accent);
+    color: #fff;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    background: var(--surface);
+    background-size: cover;
+    background-position: center;
+    color: var(--text);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.chip:hover {
+    transform: scale(1.08);
+}
+
+.chip.on {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent);
+}
+
+.select {
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+}
+
+.stage {
+    position: relative;
+    align-self: center;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) + 4px);
+    background: #0E0D16;
+}
+
+.stage.portrait {
+    width: min(100%, 300px);
+    aspect-ratio: 9 / 16;
+}
+
+.stage.landscape {
+    width: 100%;
+    max-width: 720px;
+    aspect-ratio: 16 / 9;
+}
+
+.stage.recording {
+    box-shadow: 0 0 0 3px #E5484D;
+}
+
+.stage-canvas,
+.stage-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #0E0D16;
+}
+
+.stage[hidden],
+.stage-canvas[hidden],
+.stage-video[hidden],
+.placeholder[hidden],
+.countdown[hidden],
+.timer[hidden],
+.status[hidden] {
+    display: none;
+}
+
+.placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    color: #ECEAF6;
+    text-align: center;
+    opacity: 0.75;
+}
+
+.countdown {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 5rem;
+    font-weight: 800;
+    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.timer {
+    position: absolute;
+    top: 0.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(229, 72, 77, 0.92);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.status {
+    min-height: 1.2em;
+    text-align: center;
+    opacity: 0.85;
+}
+
+.status.error {
+    color: #E5484D;
+    opacity: 1;
+}
+
+.status.ok {
+    color: #30A46C;
+    opacity: 1;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn {
+    padding: 0.5rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn.primary {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+}
+
+.btn.rec {
+    border-color: #E5484D;
+    background: #E5484D;
+    color: #fff;
+}
+
+.zoom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem 0.5rem;
+}
+
+.zoom[hidden] {
+    display: none;
+}
+
+.btn.icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.zoom-value {
+    min-width: 4.2rem;
+    padding: 0.3rem 0.5rem;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+
+.zoom-hint {
+    flex-basis: 100%;
+    text-align: center;
+    font-size: 0.78rem;
+    opacity: 0.7;
+}
+
+.zoom-hint.warn {
+    color: #E5484D;
+    opacity: 1;
+}
+
+.overlay.open .stage {
+    touch-action: none;
+}
+
+.stage.dragging {
+    cursor: grabbing;
+}
+
+.mic {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+.mic .select {
+    max-width: 22rem;
+    min-width: 0;
+}
+
+.mic-level {
+    position: relative;
+    width: 5rem;
+    height: 0.45rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+}
+
+.mic-level__bar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    background: linear-gradient(90deg, #30A46C, #F5A524 70%, #E5484D);
+    transition: width 0.08s linear;
+}

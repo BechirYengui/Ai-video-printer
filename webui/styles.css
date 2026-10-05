@@ -1,0 +1,868 @@
+header[data-testid="stHeader"],
+div[data-testid="stToolbar"],
+div[data-testid="stDecoration"],
+div[data-testid="stStatusWidget"],
+div[data-testid="stSkillsNudgeAnchor"],
+div[data-testid="stSkillsNudge"] {
+    display: none !important;
+}
+
+div[data-testid="stMainBlockContainer"] {
+    padding-top: 0.5rem !important;
+}
+/* =============================================================================
+   YenguiVideoPrinter (YVP) — couche de design.
+   Les couleurs de base (fond, texte, primaire) viennent du thème Streamlit
+   (.streamlit/config.toml). Ici : surfaces, ombres, marque et composants.
+   ========================================================================== */
+
+:root {
+    --yvp-primary: #6d4aff;
+    --yvp-accent: #ff4f8b;
+    --yvp-gradient: linear-gradient(135deg, #7c5cff 0%, #b04dff 52%, #ff4f8b 100%);
+    --yvp-surface: #ffffff;
+    --yvp-surface-sunken: #f8f7fd;
+    --yvp-border: #e6e3f2;
+    --yvp-border-strong: #d6d1ea;
+    --yvp-text-muted: #6b6785;
+    --yvp-success: #16a34a;
+    --yvp-shadow-sm: 0 1px 2px rgba(23, 21, 42, 0.05);
+    --yvp-shadow: 0 1px 2px rgba(23, 21, 42, 0.04), 0 12px 32px -18px rgba(52, 33, 140, 0.28);
+    --yvp-shadow-cta: 0 10px 28px -10px rgba(124, 72, 255, 0.65);
+    --yvp-ring: 0 0 0 3px rgba(109, 74, 255, 0.2);
+    --yvp-radius-lg: 18px;
+    --yvp-radius: 12px;
+    --yvp-font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --yvp-primary: #8c70ff;
+        --yvp-surface: #16141f;
+        --yvp-surface-sunken: #12101a;
+        --yvp-border: #29263b;
+        --yvp-border-strong: #39354f;
+        --yvp-text-muted: #a39fbe;
+        --yvp-success: #4ade80;
+        --yvp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+        --yvp-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 16px 40px -20px rgba(0, 0, 0, 0.8);
+        --yvp-shadow-cta: 0 10px 30px -10px rgba(140, 112, 255, 0.55);
+        --yvp-ring: 0 0 0 3px rgba(140, 112, 255, 0.3);
+    }
+}
+
+/* ---- Fond et conteneur principal ---------------------------------------- */
+
+div[data-testid="stAppViewContainer"] {
+    background-image:
+        radial-gradient(1100px 420px at 8% -12%, rgba(124, 92, 255, 0.13), transparent 62%),
+        radial-gradient(900px 380px at 96% -8%, rgba(255, 79, 139, 0.09), transparent 60%);
+    background-repeat: no-repeat;
+}
+
+div[data-testid="stMainBlockContainer"] {
+    max-width: 1560px;
+    padding-left: clamp(1rem, 3vw, 2.5rem) !important;
+    padding-right: clamp(1rem, 3vw, 2.5rem) !important;
+    padding-bottom: 2rem !important;
+}
+
+/* ---- Marque ------------------------------------------------------------- */
+
+.yvp-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 0;
+    padding: 0.35rem 0;
+}
+
+.yvp-logo {
+    flex: 0 0 auto;
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    box-shadow: 0 8px 22px -10px rgba(124, 72, 255, 0.75);
+}
+
+.yvp-logo svg {
+    display: block;
+    width: 48px;
+    height: 48px;
+}
+
+.yvp-brand__text {
+    min-width: 0;
+}
+
+h1.yvp-brand__name {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: var(--yvp-font-display) !important;
+    font-size: 1.7rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em;
+    line-height: 1.1 !important;
+    white-space: nowrap;
+}
+
+h1.yvp-brand__name span {
+    background: var(--yvp-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Streamlit ajoute une ancre de titre : inutile sur le nom de l'application. */
+h1.yvp-brand__name [data-testid="stHeaderActionElements"],
+.yvp-brand [data-testid="stHeaderActionElements"] {
+    display: none !important;
+}
+
+.yvp-brand__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.3rem;
+}
+
+.yvp-chip {
+    display: inline-flex;
+    align-items: center;
+    height: 1.35rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--yvp-border);
+    border-radius: 999px;
+    background: var(--yvp-surface);
+    color: var(--yvp-text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.yvp-chip--brand {
+    border-color: transparent;
+    background: var(--yvp-gradient);
+    color: #fff;
+}
+
+.yvp-brand__tagline {
+    color: var(--yvp-text-muted);
+    font-size: 0.85rem;
+}
+
+
+/* ---- Barre du haut ------------------------------------------------------ */
+
+div[class*="st-key-top_bar"] {
+    padding-bottom: 0.25rem;
+}
+
+button[data-testid="stPopoverButton"] {
+    padding-left: 0.85rem !important;
+    padding-right: 0.7rem !important;
+    border-radius: var(--yvp-radius) !important;
+}
+
+button[data-testid="stPopoverButton"],
+button[data-testid="stPopoverButton"] p {
+    white-space: nowrap !important;
+}
+
+/* ---- Cartes des quatre étapes ------------------------------------------ */
+
+/* La carte bordée de Streamlit 1.59 n'a pas de classe propre : on la repère
+   par son en-tête d'étape. */
+div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .yvp-panel-head) {
+    border: 1px solid var(--yvp-border) !important;
+    border-radius: var(--yvp-radius-lg) !important;
+    background: var(--yvp-surface);
+    box-shadow: var(--yvp-shadow);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .yvp-panel-head):focus-within {
+    border-color: var(--yvp-border-strong) !important;
+}
+
+.yvp-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.1rem 0 0.35rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--yvp-border);
+}
+
+.yvp-step {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 10px;
+    background: var(--yvp-gradient);
+    color: #fff;
+    font-family: var(--yvp-font-display);
+    font-size: 0.95rem;
+    font-weight: 800;
+    box-shadow: 0 6px 16px -8px rgba(124, 72, 255, 0.8);
+}
+
+.yvp-panel-head__title {
+    font-family: var(--yvp-font-display);
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.25;
+}
+
+.yvp-panel-head__hint {
+    margin-top: 0.1rem;
+    color: var(--yvp-text-muted);
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
+/* ---- Champs ------------------------------------------------------------ */
+
+label[data-testid="stWidgetLabel"] p {
+    font-weight: 500;
+}
+
+div[data-baseweb="select"] > div,
+div[data-baseweb="input"],
+div[data-baseweb="textarea"],
+div[data-baseweb="base-input"] {
+    border-radius: var(--yvp-radius) !important;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+div[data-baseweb="select"] > div:focus-within,
+div[data-baseweb="input"]:focus-within,
+div[data-baseweb="textarea"]:focus-within {
+    box-shadow: var(--yvp-ring) !important;
+}
+
+textarea {
+    line-height: 1.55 !important;
+}
+
+/* ---- Boutons ----------------------------------------------------------- */
+
+button[kind="secondary"],
+button[data-testid="stBaseButton-secondary"] {
+    border-radius: var(--yvp-radius) !important;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+
+button[data-testid="stBaseButton-secondary"]:hover {
+    border-color: var(--yvp-primary) !important;
+    color: var(--yvp-primary) !important;
+}
+
+button[data-testid="stBaseButton-primary"] {
+    border: 0 !important;
+    border-radius: var(--yvp-radius) !important;
+    background: var(--yvp-gradient) !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    box-shadow: var(--yvp-shadow-cta);
+    transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+button[data-testid="stBaseButton-primary"]:hover {
+    filter: brightness(1.07) saturate(1.05);
+}
+
+button[data-testid="stBaseButton-primary"]:active,
+button[data-testid="stBaseButton-secondary"]:active {
+    transform: translateY(1px);
+}
+
+button[data-testid="stBaseButton-primary"]:focus-visible,
+button[data-testid="stBaseButton-secondary"]:focus-visible {
+    box-shadow: var(--yvp-ring) !important;
+    outline: none !important;
+}
+
+/* ---- Barre « Générer la vidéo » ---------------------------------------- */
+
+div[class*="st-key-generate_bar"] {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 40;
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem 1rem;
+    border: 1px solid var(--yvp-border);
+    border-radius: var(--yvp-radius-lg);
+    background: color-mix(in srgb, var(--yvp-surface) 86%, transparent);
+    box-shadow: var(--yvp-shadow);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    backdrop-filter: blur(14px) saturate(1.4);
+    gap: 0.45rem !important;
+}
+
+div[class*="st-key-generate_bar"] div[data-testid="stMarkdownContainer"],
+div[class*="st-key-generate_bar"] div[data-testid="stMarkdown"] {
+    margin: 0 !important;
+}
+
+.yvp-generate-hint {
+    margin: 0 0 0.15rem !important;
+    padding: 0 !important;
+    line-height: 1.4 !important;
+    color: var(--yvp-text-muted);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+div[class*="st-key-generate_video_button"] button {
+    min-height: 3.4rem !important;
+    border-radius: 14px !important;
+}
+
+div[class*="st-key-generate_video_button"] button p {
+    font-family: var(--yvp-font-display);
+    font-size: 1.08rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em;
+}
+
+/* ---- Fenêtres, popovers, onglets, alertes ------------------------------ */
+
+div[role="dialog"] {
+    border-radius: var(--yvp-radius-lg) !important;
+}
+
+div[data-testid="stPopoverBody"] {
+    border-radius: var(--yvp-radius-lg) !important;
+}
+
+div[data-testid="stAlert"] {
+    border-radius: var(--yvp-radius) !important;
+}
+
+button[data-baseweb="tab"] p {
+    font-weight: 600;
+}
+
+/* Visite guidée (Driver.js) alignée sur la charte. */
+.driver-popover {
+    border-radius: 16px !important;
+    padding: 1.1rem 1.15rem !important;
+    font-family: "Inter", system-ui, sans-serif !important;
+    box-shadow: 0 24px 60px -20px rgba(23, 21, 42, 0.45) !important;
+}
+
+.driver-popover-title {
+    font-family: var(--yvp-font-display) !important;
+    font-size: 1.05rem !important;
+}
+
+.driver-popover-next-btn,
+.driver-popover-done-btn {
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: var(--yvp-gradient) !important;
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+.driver-popover-prev-btn {
+    border-radius: 8px !important;
+    text-shadow: none !important;
+}
+
+/* ---- Responsive -------------------------------------------------------- */
+
+@media (max-width: 700px) {
+    h1.yvp-brand__name {
+        font-size: 1.3rem !important;
+    }
+
+    .yvp-brand__tagline {
+        display: none;
+    }
+
+    .yvp-logo,
+    .yvp-logo svg {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
+
+/* ---- Correctifs de mise en page hérités ------------------------------- */
+
+/* Streamlit 默认让标签中的帮助区域占据剩余宽度，导致问号按钮贴到控件最右侧。
+   帮助提示在语义上从属于标签文字，因此取消该区域的伸展，并用固定小间距让
+   问号紧跟标签；没有 help 参数的标签不存在这个 div，不会受到影响。 */
+label[data-testid="stWidgetLabel"] > div {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    margin-left: 0.35rem !important;
+}
+
+/* 视频主题与大模型存在直接依赖，把配置入口放在字段标签旁。这里将 tertiary
+   button 收敛为普通文字链接，避免它与下方“生成文案”主操作争夺视觉层级；
+   text_area 仍保留折叠 label，因此屏幕阅读器可以继续读取字段名称。 */
+div[class*="st-key-video_subject_label_row"] {
+    align-items: baseline !important;
+    gap: 0.45rem !important;
+}
+
+/* 自定义标签行和 text_area 是同一字段的两个子元素。覆盖 Streamlit 容器默认
+   的纵向大间距，使它与原生“标签 + 输入框”控件保持相同的视觉节奏。 */
+div[class*="st-key-video_subject_field"] {
+    gap: 0.35rem !important;
+}
+
+div[class*="st-key-video_subject_label_row"]
+    [data-testid="stMarkdownContainer"] p {
+    margin: 0 !important;
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+}
+
+div[class*="st-key-video_subject_label_row"] button {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--yvp-primary) !important;
+    font-size: 0.8rem !important;
+    line-height: 1.25rem !important;
+}
+
+div[class*="st-key-video_subject_label_row"] button p {
+    margin: 0 !important;
+    color: var(--yvp-primary) !important;
+    font-size: 0.8rem !important;
+    line-height: 1.25rem !important;
+}
+
+div[class*="st-key-video_subject_label_row"] button:hover {
+    background: transparent !important;
+    text-decoration: underline !important;
+    text-underline-offset: 0.15rem;
+}
+
+/* 配音方式位于四列布局中的窄面板。Streamlit 的 stretch 模式默认让单个分段
+   按钮接近半行宽，三个选项会换成两行；这里仅对该控件改为三等分，并压缩
+   水平内边距，保持其它 segmented control 的原生尺寸不变。 */
+div[class*="st-key-voice_mode_control"] [role="radiogroup"] {
+    flex-wrap: nowrap !important;
+}
+
+div[class*="st-key-voice_mode_control"] [role="radiogroup"] > button {
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0.25rem !important;
+}
+
+div[class*="st-key-voice_mode_control"] [role="radiogroup"] > button p {
+    overflow: hidden !important;
+    font-size: 0.8rem !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+/* 高级设置属于内容展开入口，不是执行操作。保留 Streamlit 原生 expander 的
+   语义和键盘交互，只在带 advanced_settings_ key 的局部容器内移除卡片边框，
+   避免与紧邻的 AI 生成按钮形成两个连续大按钮的视觉干扰。 */
+div[class*="st-key-advanced_settings_"] details {
+    border: 0 !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+}
+
+div[class*="st-key-advanced_settings_"] details > summary {
+    min-height: 2.25rem !important;
+    padding: 0.35rem 0.25rem !important;
+    color: inherit !important;
+    opacity: 0.78;
+}
+
+div[class*="st-key-advanced_settings_"] details > summary:hover {
+    opacity: 1;
+    background: color-mix(
+        in srgb,
+        currentColor 6%,
+        transparent
+    ) !important;
+}
+
+/* 展开后让标题和内容共享同一背景，视觉上形成连续区域；折叠状态仍保持原有的
+   透明轻量入口，不额外占用页面层级。 */
+div[class*="st-key-advanced_settings_"] details[open] > summary {
+    border-radius: 4px 4px 0 0 !important;
+    opacity: 1;
+    background: color-mix(
+        in srgb,
+        currentColor 5%,
+        transparent
+    ) !important;
+}
+
+div[class*="st-key-advanced_settings_"] details > summary:focus {
+    background: color-mix(
+        in srgb,
+        currentColor 5%,
+        transparent
+    ) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* 键盘操作使用标题下划线作为焦点反馈，不再绘制任何外框，确保展开区域在视觉
+   上完全无边框，同时仍能让键盘用户识别当前焦点。 */
+div[class*="st-key-advanced_settings_"] details > summary:focus-visible {
+    box-shadow: none !important;
+}
+
+div[class*="st-key-advanced_settings_"] details > summary:focus-visible p {
+    text-decoration: underline !important;
+    text-underline-offset: 0.18em;
+}
+
+div[class*="st-key-advanced_settings_"] details > summary p {
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+}
+
+/* 内容区与展开标题无缝衔接，不使用任何边框，仅通过统一背景和内边距表达
+   控件从属于高级设置，避免出现嵌套卡片或割裂的两段式结构。 */
+div[class*="st-key-advanced_settings_"] div[data-testid="stExpanderDetails"] {
+    margin-top: 0 !important;
+    padding: 0.75rem 0.75rem 0.85rem 1rem !important;
+    border: 0 !important;
+    border-radius: 0 0 4px 4px !important;
+    background: color-mix(
+        in srgb,
+        currentColor 5%,
+        transparent
+    ) !important;
+}
+
+/* 任务管理 popover 需要固定宽度，避免内容从空状态、列表状态切换时
+   反复改变宽度造成页面抖动。宽度仍保留视口约束，兼容窄屏。 */
+div[data-testid="stPopoverBody"] {
+    width: min(860px, calc(100vw - 48px)) !important;
+    max-width: min(860px, calc(100vw - 48px)) !important;
+}
+
+div[data-testid="stPopoverBody"] div[data-testid="stVerticalBlock"] {
+    width: 100% !important;
+}
+
+/* 任务管理列表保留 Streamlit 原生布局，只做轻量压缩，避免每一行过高。
+   通过 task_row_ key 限定作用范围，避免影响其它配置面板的 container。 */
+div[class*="st-key-task_row_"] {
+    margin-bottom: 0.18rem !important;
+}
+
+div[class*="st-key-task_row_"] div[data-testid="stVerticalBlockBorderWrapper"] {
+    padding: 0.18rem 0.6rem !important;
+}
+
+div[class*="st-key-task_row_"] div[data-testid="stElementContainer"],
+div[class*="st-key-task_row_"] div[data-testid="stMarkdown"] {
+    margin-bottom: 0 !important;
+}
+
+div[class*="st-key-task_row_"] div[data-testid="stMarkdown"] {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 1.75rem !important;
+}
+
+div[class*="st-key-task_row_"] div[data-testid="stMarkdownContainer"] {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 0 !important;
+}
+
+div[class*="st-key-task_row_"] p {
+    margin-bottom: 0 !important;
+    line-height: 1.25 !important;
+}
+
+div[class*="st-key-task_row_"] button[kind="secondary"] {
+    position: relative !important;
+    min-height: 1.75rem !important;
+    height: 1.75rem !important;
+    padding: 0.1rem 0.3rem !important;
+}
+
+/* 按钮文字视觉隐藏后，Streamlit 仍会保留图标与文字之间的默认间距，导致
+   单独图标向左偏移。清除该间距并让内容层占满按钮，确保操作图标严格居中。 */
+div[class*="st-key-task_row_"]
+    button[kind="secondary"]
+    span[data-has-shortcut] {
+    width: 100% !important;
+    gap: 0 !important;
+    justify-content: center !important;
+}
+
+/* 行内操作保留可访问的按钮名称，但视觉上只显示图标。使用屏幕阅读器可见的
+   隐藏方式，而不是 display:none，确保每个操作仍能被正确朗读。 */
+div[class*="st-key-task_row_"] button[kind="secondary"] p {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+}
+
+
+/* 中等宽度下将四个设置面板调整为 2×2。主内容区还会扣除页面边距，因此
+   1200～1440px 的常见视口不足以稳定容纳四列英文标签；断点覆盖到 1500px，
+   避免下拉内容和标题被裁切，真正的宽屏才恢复四列。 */
+@media (min-width: 701px) and (max-width: 1500px) {
+    div[class*="st-key-main_settings_grid"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+        gap: 1rem !important;
+    }
+
+    div[class*="st-key-main_settings_grid"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"]
+        > div[data-testid="stColumn"] {
+        flex: 1 1 calc(50% - 0.5rem) !important;
+        width: calc(50% - 0.5rem) !important;
+        min-width: calc(50% - 0.5rem) !important;
+    }
+}
+
+/* 移动端隐藏桌面表头，并将任务行重排为“主题 + 元信息 + 操作”紧凑结构。 */
+@media (max-width: 700px) {
+    div[class*="st-key-task_table_header_"] {
+        display: none !important;
+    }
+
+    div[class*="st-key-task_row_"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"] {
+        display: grid !important;
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
+        gap: 0.2rem 0.5rem !important;
+        align-items: center !important;
+    }
+
+    div[class*="st-key-task_row_"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"]
+        > div[data-testid="stColumn"] {
+        width: auto !important;
+        min-width: 0 !important;
+    }
+
+    div[class*="st-key-task_row_"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"]
+        > div[data-testid="stColumn"]:nth-child(1) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    div[class*="st-key-task_row_"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"]
+        > div[data-testid="stColumn"]:nth-child(2) {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    div[class*="st-key-task_row_"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"]
+        > div[data-testid="stColumn"]:nth-child(3) {
+        grid-column: 1 / 4;
+        grid-row: 1;
+        font-weight: 600;
+    }
+
+    div[class*="st-key-task_row_"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"]
+        > div[data-testid="stColumn"]:nth-child(4) {
+        grid-column: 3;
+        grid-row: 2;
+    }
+
+    div[class*="st-key-task_row_"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"]
+        > div[data-testid="stColumn"]:nth-child(5) {
+        grid-column: 4;
+        grid-row: 1 / 3;
+    }
+
+    div[class*="st-key-task_row_"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"]
+        > div[data-testid="stColumn"]:nth-child(5)
+        div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 0.15rem !important;
+    }
+
+    div[class*="st-key-task_row_"]
+        > div[data-testid="stLayoutWrapper"]
+        > div[data-testid="stHorizontalBlock"]
+        > div[data-testid="stColumn"]:nth-child(5)
+        div[data-testid="stColumn"] {
+        flex: 1 1 0 !important;
+        width: auto !important;
+        min-width: 1.75rem !important;
+    }
+}
+
+/* ---- Studio caméra ------------------------------------------------------ */
+
+/* Aperçus vidéo plafonnés : une prise en portrait ne doit pas étirer la carte. */
+div[class*="st-key-camera_card"] video[data-testid="stVideo"],
+div[class*="st-key-explainer_card"] video[data-testid="stVideo"],
+div[class*="st-key-camera_clip_picker"] video[data-testid="stVideo"] {
+    display: block;
+    width: auto !important;
+    max-width: 100%;
+    max-height: 340px;
+    margin: 0 auto;
+    background: #0E0D16;
+    border-radius: 12px;
+}
+
+/* ---- Partage sur les réseaux ------------------------------------------- */
+
+div[data-testid="stMarkdownContainer"]:has(> .yvp-share-steps),
+div[data-testid="stMarkdown"]:has(.yvp-share-steps) {
+    width: 100% !important;
+}
+
+ol.yvp-share-steps {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin: 0 0 0.75rem !important;
+    padding: 0 !important;
+    list-style: none;
+}
+
+.yvp-share-steps li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 !important;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--yvp-border);
+    border-radius: var(--yvp-radius);
+    background: var(--yvp-surface-sunken);
+    font-size: 0.82rem;
+    line-height: 1.3;
+}
+
+.yvp-share-steps__n {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 8px;
+    background: var(--yvp-gradient);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.8rem;
+}
+
+.yvp-share-hero {
+    --brand: #6d4aff;
+    --brand-bg: var(--brand);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin: 0.6rem 0 0.4rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--yvp-radius);
+    background: var(--brand-bg);
+    color: #fff;
+    box-shadow: 0 10px 24px -14px var(--brand);
+}
+
+.yvp-share-hero__name {
+    font-family: var(--yvp-font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+}
+
+.yvp-share-hero__hint {
+    font-size: 0.82rem;
+    opacity: 0.92;
+}
+
+.yvp-share-hero--youtube_shorts { --brand: #ff0033; }
+.yvp-share-hero--facebook_reels { --brand: #1877f2; }
+.yvp-share-hero--tiktok {
+    --brand: #010101;
+    --brand-bg: linear-gradient(120deg, #010101 60%, #25f4ee 160%);
+    box-shadow: -3px 0 0 #25f4ee inset, 3px 0 0 #fe2c55 inset, 0 10px 24px -14px #000;
+}
+.yvp-share-hero--instagram_reels {
+    --brand: #dd2a7b;
+    --brand-bg: linear-gradient(45deg, #f58529 0%, #dd2a7b 45%, #8134af 75%, #515bd4 100%);
+}
+
+/* Bouton « Publier sur … » aux couleurs du réseau. */
+div[class*="st-key-share_go_"] a[data-testid] {
+    border: 0 !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    min-height: 2.9rem;
+    transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+div[class*="st-key-share_go_"] a[data-testid]:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+}
+
+div[class*="st-key-share_go_youtube_shorts"] a[data-testid] { background: #ff0033 !important; }
+div[class*="st-key-share_go_facebook_reels"] a[data-testid] { background: #1877f2 !important; }
+div[class*="st-key-share_go_tiktok"] a[data-testid] {
+    background: #010101 !important;
+    box-shadow: -3px 0 0 #25f4ee, 3px 0 0 #fe2c55 !important;
+}
+div[class*="st-key-share_go_instagram_reels"] a[data-testid] {
+    background: linear-gradient(45deg, #f58529, #dd2a7b 45%, #8134af 75%, #515bd4) !important;
+}
+
+@media (max-width: 700px) {
+    ol.yvp-share-steps {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Composant invisible qui pose les balises de page (theme-color, notranslate). */
+div[class*="st-key-yvp_page_meta"] {
+    display: none !important;
+}

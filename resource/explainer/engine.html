@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="fr" translate="no">
+<head>
+<meta charset="utf-8">
+<title>YVP explainer</title>
+<style>
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0b0a18; }
+  body { font-family: "Inter", "Segoe UI", "Ubuntu", "DejaVu Sans", sans-serif; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<svg id="stage" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+// Moteur d'animation des vidéos explicatives YVP.
+// Python injecte window.PLAN (scènes minutées par la voix) puis appelle
+// window.seek(t) pour chaque image : le rendu est déterministe, image par image.
+const W = 1080, H = 1920;
+const NS = "http://www.w3.org/2000/svg";
+const ACCENT = "#8C70FF", ACCENT2 = "#FF4F8B", CYAN = "#3EE6C7";
+
+// --- Bibliothèque d'icônes (viewBox 0 0 100 100), style plat YVP ----------
+const DEFS = `
+  <linearGradient id="gV" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8C70FF"/><stop offset="1" stop-color="#5B38F0"/></linearGradient>
+  <linearGradient id="gP" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF7AA8"/><stop offset="1" stop-color="#FF4F8B"/></linearGradient>
+  <linearGradient id="gC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5FF2D6"/><stop offset="1" stop-color="#1FB89C"/></linearGradient>
+  <linearGradient id="gS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B3858"/><stop offset="1" stop-color="#25233A"/></linearGradient>
+  <linearGradient id="gBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14112B"/><stop offset="1" stop-color="#090814"/></linearGradient>
+  <radialGradient id="gGlow"><stop offset="0" stop-color="#8C70FF" stop-opacity="0.55"/><stop offset="1" stop-color="#8C70FF" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gGlow2"><stop offset="0" stop-color="#FF4F8B" stop-opacity="0.35"/><stop offset="1" stop-color="#FF4F8B" stop-opacity="0"/></radialGradient>
+  <filter id="fShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity="0.45"/></filter>
+  <filter id="fGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+`;
+const ICONS = {
+  phone: `<rect x="27" y="6" width="46" height="88" rx="10" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/>
+          <rect x="32" y="15" width="36" height="66" rx="4" fill="url(#gV)"/>
+          <rect x="42" y="9.5" width="16" height="3" rx="1.5" fill="#5B5880"/>
+          <circle cx="50" cy="87.5" r="3" fill="#5B5880"/>
+          <rect class="screen-line" x="36" y="24" width="28" height="5" rx="2.5" fill="#fff" opacity=".85"/>
+          <rect class="screen-line" x="36" y="34" width="20" height="5" rx="2.5" fill="#fff" opacity=".6"/>
+          <rect class="screen-line" x="36" y="44" width="24" height="5" rx="2.5" fill="#fff" opacity=".6"/>`,
+  laptop: `<rect x="16" y="20" width="68" height="46" rx="5" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/>
+           <rect x="21" y="25" width="58" height="36" rx="2" fill="url(#gV)"/>
+           <path d="M6 70 h88 l-7 10 h-74 z" fill="#3B3858" stroke="#5B5880" stroke-width="2"/>`,
+  browser: `<rect x="10" y="16" width="80" height="68" rx="8" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/>
+            <rect x="10" y="16" width="80" height="14" rx="8" fill="#4A4670"/>
+            <circle cx="19" cy="23" r="2.5" fill="#FF5F57"/><circle cx="27" cy="23" r="2.5" fill="#FEBC2E"/><circle cx="35" cy="23" r="2.5" fill="#28C840"/>
+            <rect x="18" y="38" width="64" height="10" rx="3" fill="url(#gV)"/>
+            <rect x="18" y="54" width="40" height="6" rx="3" fill="#fff" opacity=".55"/>
+            <rect x="18" y="66" width="52" height="6" rx="3" fill="#fff" opacity=".35"/>`,
+  server: `<g filter="url(#fShadow)">
+           <rect x="18" y="10" width="64" height="24" rx="5" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/>
+           <rect x="18" y="38" width="64" height="24" rx="5" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/>
+           <rect x="18" y="66" width="64" height="24" rx="5" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/></g>
+           <circle class="led" cx="29" cy="22" r="3.5" fill="${CYAN}"/><circle class="led" cx="29" cy="50" r="3.5" fill="${CYAN}"/><circle class="led" cx="29" cy="78" r="3.5" fill="${CYAN}"/>
+           <rect x="40" y="19" width="34" height="6" rx="3" fill="#5B5880"/><rect x="40" y="47" width="34" height="6" rx="3" fill="#5B5880"/><rect x="40" y="75" width="34" height="6" rx="3" fill="#5B5880"/>`,
+  database: `<path d="M18 22 v56 c0 8 14 14 32 14 s32-6 32-14 v-56" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/>
+             <ellipse cx="50" cy="22" rx="32" ry="13" fill="url(#gV)"/>
+             <path d="M18 42 c0 8 14 14 32 14 s32-6 32-14" fill="none" stroke="#8C70FF" stroke-width="3" opacity=".7"/>
+             <path d="M18 62 c0 8 14 14 32 14 s32-6 32-14" fill="none" stroke="#8C70FF" stroke-width="3" opacity=".7"/>`,
+  cloud: `<path d="M28 78 h46 a18 18 0 0 0 2-36 a24 24 0 0 0-46-6 a20 20 0 0 0-2 42 z" fill="url(#gV)" stroke="#B6A6FF" stroke-width="2"/>`,
+  lock: `<path d="M32 44 v-12 a18 18 0 0 1 36 0 v12" fill="none" stroke="#B6A6FF" stroke-width="8" stroke-linecap="round"/>
+         <rect x="22" y="42" width="56" height="46" rx="9" fill="url(#gV)"/>
+         <circle cx="50" cy="62" r="6" fill="#fff"/><rect x="47" y="64" width="6" height="12" rx="3" fill="#fff"/>`,
+  user: `<circle cx="50" cy="34" r="17" fill="url(#gP)"/>
+         <path d="M18 88 c0-20 14-32 32-32 s32 12 32 32 z" fill="url(#gV)"/>`,
+  globe: `<circle cx="50" cy="50" r="38" fill="url(#gV)"/>
+          <ellipse cx="50" cy="50" rx="16" ry="38" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/>
+          <path d="M12 50 h76 M17 32 h66 M17 68 h66" stroke="#fff" stroke-width="3" opacity=".7"/>`,
+  api: `<rect x="10" y="22" width="80" height="56" rx="12" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/>
+        <path d="M36 36 l-12 14 l12 14 M64 36 l12 14 l-12 14" fill="none" stroke="${CYAN}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M55 32 l-10 36" stroke="#FF4F8B" stroke-width="6" stroke-linecap="round"/>`,
+  router: `<rect x="12" y="50" width="76" height="28" rx="8" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/>
+           <path d="M30 50 l-8-28 M70 50 l8-28" stroke="#B6A6FF" stroke-width="5" stroke-linecap="round"/>
+           <circle class="led" cx="30" cy="64" r="4" fill="${CYAN}"/><circle class="led" cx="44" cy="64" r="4" fill="${CYAN}"/>
+           <path d="M38 22 a16 16 0 0 1 24 0 M32 15 a26 26 0 0 1 36 0" fill="none" stroke="#8C70FF" stroke-width="4" stroke-linecap="round"/>`,
+  cache: `<rect x="16" y="16" width="68" height="68" rx="14" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/>
+          <path d="M56 22 l-20 32 h14 l-6 24 l22-34 h-14 z" fill="url(#gP)"/>`,
+  shield: `<path d="M50 8 l34 12 v24 c0 22-14 38-34 48 c-20-10-34-26-34-48 v-24 z" fill="url(#gV)"/>
+           <path d="M36 50 l10 10 l20-22" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`,
+  file: `<path d="M24 8 h36 l20 20 v64 h-56 z" fill="url(#gS)" stroke="#5B5880" stroke-width="2"/>
+         <path d="M60 8 v20 h20" fill="#4A4670"/>
+         <rect x="32" y="40" width="36" height="6" rx="3" fill="#B6A6FF"/><rect x="32" y="54" width="28" height="6" rx="3" fill="#B6A6FF" opacity=".7"/><rect x="32" y="68" width="32" height="6" rx="3" fill="#B6A6FF" opacity=".5"/>`,
+  generic: `<rect x="14" y="14" width="72" height="72" rx="18" fill="url(#gV)"/>
+            <circle cx="50" cy="50" r="14" fill="#fff" opacity=".9"/>`,
+};
+
+// --- Utilitaires -------------------------------------------------------------
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const ease = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const easeBack = (x) => { x = clamp(x); const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// Mise en page : emplacements selon le nombre d'éléments, dans la zone haute
+// (le bas est réservé aux sous-titres). Ordre = ordre d'apparition.
+const SLOTS = {
+  1: [[540, 860]],
+  2: [[270, 800], [810, 800]],
+  3: [[270, 640], [810, 640], [540, 1110]],
+  4: [[270, 620], [810, 620], [810, 1110], [270, 1110]],
+  5: [[250, 520], [830, 520], [540, 880], [830, 1240], [250, 1240]],
+};
+let ICON = 250; // réduit à 5 éléments pour que tout tienne sans chevauchement
+
+function layout(plan) {
+  const slots = SLOTS[Math.min(5, plan.elements.length)] || SLOTS[5];
+  const pos = {};
+  plan.elements.forEach((e, i) => { pos[e.id] = { x: slots[i][0], y: slots[i][1] }; });
+  return pos;
+}
+
+// Chemin courbe de a vers b ; le sens retour se courbe de l'autre côté pour
+// ne jamais superposer l'aller et le retour.
+function flowPath(a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len, r = ICON * 0.62;
+  const s = { x: a.x + ux * r, y: a.y + uy * r }, e = { x: b.x - ux * r, y: b.y - uy * r };
+  const bend = 70;
+  const c = { x: (s.x + e.x) / 2 - uy * bend, y: (s.y + e.y) / 2 + ux * bend };
+  return { s, e, c, d: `M${s.x} ${s.y} Q${c.x} ${c.y} ${e.x} ${e.y}` };
+}
+const qPoint = (p, t) => ({
+  x: (1 - t) ** 2 * p.s.x + 2 * (1 - t) * t * p.c.x + t * t * p.e.x,
+  y: (1 - t) ** 2 * p.s.y + 2 * (1 - t) * t * p.c.y + t * t * p.e.y,
+});
+const qLength = (p) => { let L = 0, prev = p.s; for (let i = 1; i <= 24; i++) { const q = qPoint(p, i / 24); L += Math.hypot(q.x - prev.x, q.y - prev.y); prev = q; } return L; };
+
+// Titre : taille ajustée pour tenir sur 2 lignes.
+function wrap(text, maxChars) {
+  const words = String(text).split(/\s+/), lines = []; let line = "";
+  for (const w of words) { if ((line + " " + w).trim().length > maxChars && line) { lines.push(line); line = w; } else line = (line + " " + w).trim(); }
+  if (line) lines.push(line); return lines;
+}
+
+// --- Rendu d'une image au temps t ------------------------------------------
+let PLAN = null, POS = null, FIRST_SEEN = {};
+const firstSeenAt = (id) => FIRST_SEEN[id];
+window.init = (plan) => {
+  PLAN = plan; POS = layout(plan); FIRST_SEEN = {};
+  ICON = plan.elements.length >= 5 ? 200 : 250;
+  plan.scenes.forEach((s) => (s.show || []).forEach((id) => { if (!(id in FIRST_SEEN)) FIRST_SEEN[id] = s.start; }));
+};
+
+window.seek = (t) => {
+  const svg = document.getElementById("stage");
+  const total = PLAN.scenes[PLAN.scenes.length - 1].end;
+  const sceneIndex = Math.max(0, PLAN.scenes.findIndex((s) => t < s.end));
+  const scene = PLAN.scenes[sceneIndex === -1 ? PLAN.scenes.length - 1 : sceneIndex];
+  let out = `<defs>${DEFS}</defs>`;
+
+  // Fond : dégradé, grille discrète et halos qui dérivent lentement.
+  out += `<rect width="${W}" height="${H}" fill="url(#gBg)"/>`;
+  out += `<g opacity=".07" stroke="#B6A6FF" stroke-width="1">`;
+  for (let x = 0; x <= W; x += 60) out += `<path d="M${x} 0 V${H}"/>`;
+  for (let y = 0; y <= H; y += 60) out += `<path d="M0 ${y} H${W}"/>`;
+  out += `</g>`;
+  out += `<circle cx="${200 + 60 * Math.sin(t / 3)}" cy="${420 + 40 * Math.cos(t / 4)}" r="520" fill="url(#gGlow)"/>`;
+  out += `<circle cx="${880 + 50 * Math.cos(t / 3.5)}" cy="${1180 + 50 * Math.sin(t / 4.5)}" r="480" fill="url(#gGlow2)"/>`;
+
+  // Titre (toujours visible, entre au début).
+  const tIn = ease(t / 0.6);
+  const titleLines = wrap(PLAN.title, 22).slice(0, 2);
+  out += `<g opacity="${tIn}" transform="translate(0 ${(1 - tIn) * -30})">`;
+  titleLines.forEach((line, i) => {
+    out += `<text x="${W / 2}" y="${170 + i * 84}" text-anchor="middle" font-size="72" font-weight="800" fill="#fff" letter-spacing="-1">${esc(line)}</text>`;
+  });
+  out += `<rect x="${W / 2 - 70}" y="${170 + titleLines.length * 84 - 40}" width="140" height="8" rx="4" fill="url(#gP)"/></g>`;
+
+  const labels = [];
+  // Flèches : celles des scènes passées restent (atténuées), celle de la
+  // scène en cours se trace puis transporte un paquet étiqueté.
+  PLAN.scenes.forEach((s, i) => {
+    if (!s.flow || t < s.start) return;
+    const a = POS[s.flow.from], b = POS[s.flow.to];
+    if (!a || !b) return;
+    const p = flowPath(a, b), L = qLength(p);
+    const current = i === sceneIndex;
+    const draw = ease((t - s.start - 0.15) / 0.7);
+    const color = s.flow.reverse ? CYAN : ACCENT2;
+    out += `<path d="${p.d}" fill="none" stroke="${color}" stroke-width="${current ? 10 : 6}" stroke-linecap="round"
+              stroke-dasharray="${L}" stroke-dashoffset="${L * (1 - draw)}" opacity="${current ? 1 : 0.35}"/>`;
+    if (draw > 0.98) {
+      // Pointe de flèche.
+      const q = qPoint(p, 0.97), ang = Math.atan2(p.e.y - q.y, p.e.x - q.x) * 180 / Math.PI;
+      out += `<path d="M0 0 L-30 -17 L-30 17 Z" fill="${color}" opacity="${current ? 1 : 0.35}" transform="translate(${p.e.x} ${p.e.y}) rotate(${ang})"/>`;
+    }
+    if (current && t > s.start + 0.85) {
+      // Paquets qui circulent en boucle le long de la flèche.
+      for (let k = 0; k < 2; k++) {
+        const u = ((t - s.start - 0.85) / 1.3 + k * 0.5) % 1;
+        const m = qPoint(p, u);
+        out += `<circle cx="${m.x}" cy="${m.y}" r="16" fill="${color}" filter="url(#fGlow)"/>`;
+        out += `<circle cx="${m.x}" cy="${m.y}" r="7" fill="#fff"/>`;
+      }
+    }
+    if (current && s.flow.label) {
+      const lb = ease((t - s.start - 0.5) / 0.4);
+      const label = String(s.flow.label), w = Math.min(760, 44 + label.length * 25);
+      // Position de la légende : plusieurs essais (le long de la flèche, des
+      // deux côtés), on garde celle qui ne touche ni icône ni nom d'élément.
+      const mx = (p.s.x + p.e.x) / 2, my = (p.s.y + p.e.y) / 2;
+      const nx = p.c.x - mx, ny = p.c.y - my, nl = Math.hypot(nx, ny) || 1;
+      const visible = PLAN.elements.filter((el) => firstSeenAt(el.id) !== undefined && t >= firstSeenAt(el.id));
+      const overlap = (cx, cy) => {
+        let hit = 0;
+        const x0 = cx - w / 2, x1 = cx + w / 2, y0 = cy - 40, y1 = cy + 40;
+        if (x0 < 20 || x1 > W - 20) hit += 1000;
+        visible.forEach((el) => {
+          const q = POS[el.id], r = ICON * 0.64 + 10;
+          const nxp = clamp(q.x, x0, x1), nyp = clamp(q.y, y0, y1);
+          if (Math.hypot(q.x - nxp, q.y - nyp) < r) hit += 100;
+          const lw = el.label.length * 27 + 20, ly0 = q.y + ICON * 0.64 + 20, ly1 = ly0 + 60;
+          if (x0 < q.x + lw / 2 && x1 > q.x - lw / 2 && y0 < ly1 && y1 > ly0) hit += 50;
+        });
+        return hit;
+      };
+      let lx = mx, ly = my, best = Infinity;
+      for (const u of [0.5, 0.4, 0.6, 0.3, 0.7]) {
+        for (const side of [1, -1]) {
+          for (const d of [64, 120, 190, 260]) {
+            const m = qPoint(p, u), cx = m.x + side * (nx / nl) * d, cy = m.y + side * (ny / nl) * d;
+            const score = overlap(cx, cy) + Math.abs(u - 0.5) * 20 + (side < 0 ? 5 : 0) + d / 12;
+            if (score < best) { best = score; lx = cx; ly = cy; }
+          }
+        }
+      }
+      lx = clamp(lx, w / 2 + 24, W - w / 2 - 24);
+      labels.push(`<g opacity="${lb}" transform="translate(${lx} ${ly}) scale(${0.85 + 0.15 * lb})">
+        <rect x="${-w / 2}" y="-40" width="${w}" height="80" rx="40" fill="#1C1A2B" stroke="${color}" stroke-width="4" filter="url(#fShadow)"/>
+        <text x="0" y="15" text-anchor="middle" font-size="44" font-weight="800" fill="#fff">${esc(label)}</text></g>`);
+    }
+  });
+
+  // Éléments : apparaissent à leur première scène, mis en valeur si demandé.
+  const firstSeen = FIRST_SEEN;
+  PLAN.elements.forEach((e) => {
+    const t0 = firstSeen[e.id]; if (t0 === undefined || t < t0) return;
+    const pos = POS[e.id], k = easeBack((t - t0) / 0.5), fade = ease((t - t0) / 0.3);
+    const hl = scene.highlight === e.id;
+    const pulse = hl ? 1 + 0.06 * Math.sin((t - scene.start) * 6) : 1;
+    const art = e.kind === "custom" && e.svg ? e.svg : (ICONS[e.kind] || ICONS.generic);
+    out += `<g opacity="${fade}" transform="translate(${pos.x} ${pos.y}) scale(${k * pulse})">`;
+    if (hl) out += `<circle r="${ICON * 0.72}" fill="none" stroke="${CYAN}" stroke-width="6" opacity="${0.5 + 0.4 * Math.sin((t - scene.start) * 6)}"/>`;
+    out += `<circle r="${ICON * 0.64}" fill="#1C1A2B" stroke="${hl ? CYAN : "#3B3858"}" stroke-width="4" filter="url(#fShadow)"/>`;
+    out += `<svg x="${-ICON / 2}" y="${-ICON / 2}" width="${ICON}" height="${ICON}" viewBox="0 0 100 100" overflow="visible">${art}</svg>`;
+    out += `<text y="${ICON * 0.64 + 66}" text-anchor="middle" font-size="46" font-weight="700" fill="#fff">${esc(e.label)}</text>`;
+    out += `</g>`;
+  });
+
+  // Légendes au premier plan : jamais cachées par une icône.
+  out += labels.join("");
+
+  // Sous-titres mot à mot (karaoké) : le mot prononcé en couleur.
+  const words = scene.words || [];
+  if (words.length) {
+    // Groupes de 4 à 7 mots (2 lignes max) ; un reste de 1-2 mots rejoint
+    // le groupe précédent plutôt que de s'afficher seul.
+    const groups = [];
+    for (let i = 0; i < words.length; i += 6) groups.push(words.slice(i, i + 6));
+    if (groups.length > 1 && groups[groups.length - 1].length <= 2) groups[groups.length - 2].push(...groups.pop());
+    let gi = groups.findIndex((g) => t < g[g.length - 1].end + 0.05);
+    if (gi < 0) gi = groups.length - 1;
+    const group = groups[gi];
+    const lines = []; let line = [], len = 0;
+    group.forEach((w) => { if (len + w.text.length > 22 && line.length) { lines.push(line); line = []; len = 0; } line.push(w); len += w.text.length + 1; });
+    if (line.length) lines.push(line);
+    const y0 = 1580;
+    out += `<rect x="60" y="${y0 - 92}" width="${W - 120}" height="${lines.length * 96 + 66}" rx="34" fill="#000" opacity=".38"/>`;
+    lines.forEach((l, li) => {
+      let spans = "";
+      l.forEach((w) => {
+        const said = t >= w.start, now = t >= w.start && t < w.end + 0.05;
+        const fill = now ? "#FFD84D" : said ? "#fff" : "rgba(255,255,255,.45)";
+        spans += `<tspan fill="${fill}">${esc(w.text)} </tspan>`;
+      });
+      out += `<text x="${W / 2}" y="${y0 + li * 96}" text-anchor="middle" font-size="66" font-weight="800" stroke="#000" stroke-width="6" paint-order="stroke">${spans}</text>`;
+    });
+  }
+
+  // Barre de progression discrète.
+  out += `<rect x="0" y="${H - 12}" width="${W * clamp(t / total)}" height="12" fill="url(#gP)"/>`;
+  svg.innerHTML = out;
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+# YenguiVideoPrinter (YVP) — système de design.
+# Streamlit lit ce fichier depuis le dossier courant : start.sh et webui.sh
+# se placent à la racine du projet avant de lancer l'interface.
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"
+
+[logger]
+hideWelcomeMessage = true
+
+[theme]
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+headingFont = "Plus Jakarta Sans:https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+baseFontSize = 15
+baseRadius = "10px"
+buttonRadius = "10px"
+showWidgetBorder = true
+linkUnderline = false
+
+[theme.light]
+primaryColor = "#6D4AFF"
+backgroundColor = "#F6F5FB"
+secondaryBackgroundColor = "#EFEDF7"
+textColor = "#17152A"
+linkColor = "#5B38F0"
+borderColor = "#E3E0F0"
+violetColor = "#6D4AFF"
+
+[theme.dark]
+primaryColor = "#8C70FF"
+backgroundColor = "#0E0D16"
+secondaryBackgroundColor = "#1C1A2B"
+textColor = "#ECEAF6"
+linkColor = "#A994FF"
+borderColor = "#2C2942"
+violetColor = "#8C70FF"
+
+[server]
+# Sert webui/static/ sous /app/static/ (MediaPipe pour le studio caméra).
+enableStaticServing = true

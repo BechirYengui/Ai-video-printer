@@ -1,0 +1,29 @@
+YenguiVideoPrinter (YVP) - Windows 11
+=====================================
+
+Installation (une seule fois, ~20-40 min selon la connexion) :
+  1. Extraire le zip dans un dossier simple, par exemple C:\YVP
+     (éviter OneDrive / Bureau synchronisé).
+  2. Double-cliquer sur Installer-YVP.bat.
+     Si Windows affiche « Windows a protégé votre ordinateur » :
+     cliquer sur « Informations complémentaires » puis « Exécuter quand même ».
+  3. Attendre « Installation terminée ! ». Elle télécharge Python,
+     les dépendances, Ollama (~1,5 Go) et le modèle IA (~5 Go).
+
+Utilisation :
+  - Cliquer sur l'icône YenguiVideoPrinter (Bureau ou menu Démarrer).
+  - Pour l'avoir dans la barre des tâches : menu Démarrer > YenguiVideoPrinter
+    > clic droit > Épingler à la barre des tâches.
+  - YVP démarre uniquement au clic, et s'arrête tout seul quand on ferme
+    sa fenêtre (ou quand on éteint le PC). Rien ne tourne en arrière-plan.
+
+Studio caméra (se filmer devant un fond au choix) :
+  - Carte « Studio caméra » en haut de la page > Activer la caméra.
+  - Au premier usage, Edge demande l'autorisation caméra et micro : accepter.
+  - Les vidéos sont rangées dans le dossier Vidéos\YVP de l'utilisateur.
+  - Pour les utiliser dans le montage : carte 1 > « Mes photos et vidéos »
+    > « Depuis mes enregistrements ».
+
+En cas de problème : regarder le dossier logs\ (desktop.err.log, ollama.log).
+Désinstaller : clic droit sur tools\windows\uninstall.ps1 > Exécuter avec PowerShell,
+puis supprimer le dossier.

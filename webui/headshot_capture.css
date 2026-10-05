@@ -1,0 +1,158 @@
+/* YVP — capture guidée photo LinkedIn (shadow DOM : variables du thème Streamlit). */
+.hs {
+    --accent: var(--st-primary-color, #6D4AFF);
+    --text: var(--st-text-color, #17152A);
+    --surface: var(--st-secondary-background-color, #EFEDF7);
+    --border: var(--st-border-color, rgba(128, 128, 140, 0.3));
+    --radius: var(--st-base-radius, 10px);
+    color: var(--text);
+    font-family: var(--st-font, inherit);
+    font-size: 0.9rem;
+}
+
+.btn {
+    padding: 0.5rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn.primary {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+}
+
+.hs > .btn {
+    width: 100%;
+}
+
+.hs-overlay {
+    display: none;
+}
+
+/* Caméra allumée : panneau au centre de l'écran, le regard tombe sur l'objectif. */
+.hs-overlay.open {
+    position: fixed;
+    inset: 0;
+    z-index: 1000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(8, 7, 14, 0.72);
+    backdrop-filter: blur(6px);
+}
+
+.hs-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    padding: 1rem 1.25rem;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--st-background-color, #FFFFFF);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+}
+
+.hs-stage {
+    position: relative;
+    height: min(62vh, 820px);
+    aspect-ratio: 3 / 4;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #0E0D16;
+}
+
+.hs-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.hs-instruction {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 90%;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(14, 13, 22, 0.78);
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.hs-progress {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(14, 13, 22, 0.78);
+    color: #fff;
+    font-weight: 600;
+}
+
+.hs-hint {
+    min-height: 1.6rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-align: center;
+    color: #E5484D;
+}
+
+.hs-hint.ok {
+    color: #30A46C;
+}
+
+.hs-thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    min-height: 56px;
+}
+
+.hs-thumbs img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.hs-status {
+    text-align: center;
+    opacity: 0.8;
+}
+
+.hs-status:empty {
+    display: none;
+}
+
+.hs-status.error {
+    color: #E5484D;
+    opacity: 1;
+}
+
+.hs-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
