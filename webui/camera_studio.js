@@ -18,6 +18,7 @@ const PRESETS = [
   { id: "ocean", kind: "gradient", colors: ["#2BC0E4", "#1E5799"] },
   { id: "night", kind: "color", color: "#14121F" },
   { id: "light", kind: "color", color: "#F4F2FA" },
+  { id: "gray", kind: "color", color: "#E6E6E8" },
   { id: "green", kind: "color", color: "#00B140" },
 ];
 
@@ -385,8 +386,9 @@ function createStudio(root, component) {
   ui.review = el("video", { class: "stage-video", controls: "", playsinline: "", hidden: "" });
   ui.placeholder = el("div", { class: "placeholder" });
   ui.countdown = el("div", { class: "countdown", hidden: "" });
+  ui.flash = el("div", { class: "flash" });
   ui.timer = el("div", { class: "timer", hidden: "" });
-  ui.stage = el("div", { class: "stage portrait" }, [ui.canvas, ui.review, ui.placeholder, ui.countdown, ui.timer]);
+  ui.stage = el("div", { class: "stage portrait" }, [ui.canvas, ui.review, ui.placeholder, ui.countdown, ui.timer, ui.flash]);
   ui.zoomOut = el("button", { type: "button", class: "btn icon", text: "−" });
   ui.zoomIn = el("button", { type: "button", class: "btn icon", text: "+" });
   ui.zoomValue = el("button", { type: "button", class: "zoom-value", text: "100 %" });
@@ -502,6 +504,7 @@ function createStudio(root, component) {
       items.push(button("start_camera", startCamera, "primary"));
     } else if (mode === "live") {
       items.push(button("record", startCountdown, "rec"));
+      items.push(button("photo", takePhoto));
       items.push(button("stop_camera", stopCamera));
     } else if (mode === "countdown" || mode === "recording") {
       items.push(button("stop", stopRecording, "rec"));
@@ -886,6 +889,59 @@ function createStudio(root, component) {
       ui.timer.textContent = `● ${formatTime(elapsed)} / ${formatTime(state.maxSeconds)}`;
       if (elapsed >= state.maxSeconds) stopRecording();
     }
+  }
+
+  // --- Photo ---------------------------------------------------------------
+  // La webcam (souvent 720p) est agrandie pour remplir le format : la photo
+  // reçoit un masque flou (unsharp mask) qui rend le détail perdu à
+  // l'agrandissement. Les zones unies (fond, peau) ne sont pas touchées.
+  const PHOTO_SHARPEN = window.__yvpPhotoSharpen ?? 0.8;
+  const PHOTO_SHARPEN_THRESHOLD = 3;
+
+  function sharpenedCopy(source) {
+    const w = source.width, h = source.height;
+    const out = document.createElement("canvas");
+    out.width = w; out.height = h;
+    const ctx = out.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(source, 0, 0);
+    if (!(PHOTO_SHARPEN > 0)) return out;
+    const blurred = document.createElement("canvas");
+    blurred.width = w; blurred.height = h;
+    const bctx = blurred.getContext("2d", { willReadFrequently: true });
+    // Rayon proportionnel à l'agrandissement subi par l'image caméra.
+    const crop = state.lastCrop;
+    const upscale = crop ? Math.max(1, w / crop.sw) : 1;
+    bctx.filter = `blur(${(0.6 + 0.5 * (upscale - 1)).toFixed(2)}px)`;
+    bctx.drawImage(source, 0, 0);
+    const image = ctx.getImageData(0, 0, w, h);
+    const px = image.data, soft = bctx.getImageData(0, 0, w, h).data;
+    for (let i = 0; i < px.length; i += 4) {
+      for (let c = 0; c < 3; c++) {
+        const diff = px[i + c] - soft[i + c];
+        if (Math.abs(diff) > PHOTO_SHARPEN_THRESHOLD) px[i + c] += diff * PHOTO_SHARPEN;  // Uint8Clamped : borné
+      }
+    }
+    ctx.putImageData(image, 0, 0);
+    return out;
+  }
+
+  // Un clic : l'image affichée (fond et zoom compris) est téléchargée en PNG.
+  function takePhoto() {
+    if (state.mode !== "live") return;
+    ui.flash.classList.remove("on");
+    void ui.flash.offsetWidth;  // relance l'animation du flash
+    ui.flash.classList.add("on");
+    sharpenedCopy(ui.canvas).toBlob((blob) => {
+      if (!blob) { setStatus("error_photo_save", "error"); return; }
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[-:]/g, "").replace("T", "_");
+      const url = URL.createObjectURL(blob);
+      const link = el("a", { href: url, download: `yvp_photo_${stamp}.png` });
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      setStatus("photo_saved", "ok");
+    }, "image/png");
   }
 
   // --- Enregistrement ------------------------------------------------------

@@ -223,6 +223,23 @@
     white-space: nowrap;
 }
 
+.flash {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.flash.on {
+    animation: flash 0.35s ease-out;
+}
+
+@keyframes flash {
+    from { opacity: 0.85; }
+    to { opacity: 0; }
+}
+
 .status {
     min-height: 1.2em;
     text-align: center;
